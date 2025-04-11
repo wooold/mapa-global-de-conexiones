@@ -1,6 +1,6 @@
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
-import Mapa from './Mapa';
+import MapaView from './features/Map/MapView';
 
 delete L.Icon.Default.prototype._getIconUrl;
 L.Icon.Default.mergeOptions({
@@ -13,7 +13,7 @@ function App() {
   return (
     <div>
       <h1>Mapa Global de Conexiones</h1>
-      <Mapa />
+      <MapaView />
     </div>
   );
 }
