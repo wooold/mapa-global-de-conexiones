@@ -9,6 +9,9 @@ import FormularioMensajeModal from '../../components/FormularioMensajeModal';
 import markerIcon from 'leaflet/dist/images/marker-icon.png';
 import markerShadow from 'leaflet/dist/images/marker-shadow.png';
 
+// 🔗 URL de tu backend en Render (reemplaza por la tuya real)
+const BACKEND_URL = 'https://mapa-global-de-conexiones.onrender.com';
+
 // Corrección del ícono por defecto
 L.Icon.Default.mergeOptions({
   iconUrl: markerIcon,
@@ -16,9 +19,7 @@ L.Icon.Default.mergeOptions({
 });
 
 function MapClickHandler({ onClick }) {
-  useMapEvents({
-    click: onClick,
-  });
+  useMapEvents({ click: onClick });
   return null;
 }
 
@@ -28,7 +29,7 @@ function Mapa() {
   const [coordsTemp, setCoordsTemp] = useState(null);
 
   useEffect(() => {
-    fetch('/api/puntos')
+    fetch(`${BACKEND_URL}/api/puntos`)
       .then((res) => res.json())
       .then((data) => setPuntos(data))
       .catch((err) => console.error('Error al cargar puntos:', err));
@@ -45,22 +46,22 @@ function Mapa() {
 
   const agregarPunto = async (mensaje) => {
     if (!coordsTemp) return;
-  
+
     const nuevoPunto = {
       lat: coordsTemp.lat,
       lng: coordsTemp.lng,
       mensaje,
     };
-  
+
     try {
-      const res = await fetch('/api/puntos', {
+      const res = await fetch(`${BACKEND_URL}/api/puntos`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(nuevoPunto),
       });
-  
+
       if (res.ok) {
         const puntoGuardado = await res.json();
         setPuntos((prev) => [...prev, puntoGuardado]);
