@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 
-function FormularioMensajeModal({ visible, onClose, onSubmit }) {
+// 🛠 Recibe `usuario` como prop para usar su nombre, email y uid
+function FormularioMensajeModal({ visible, onClose, onSubmit, usuario }) {
   const [mensaje, setMensaje] = useState('');
   const [autor, setAutor] = useState('');
 
@@ -8,8 +9,17 @@ function FormularioMensajeModal({ visible, onClose, onSubmit }) {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+
+    // 🛠 Validación simple: no envíes si el mensaje está vacío
     if (mensaje.trim() !== '') {
-      onSubmit({ mensaje, autor }); // ✅ enviamos ambos valores
+      onSubmit({
+        mensaje,
+        autor: autor || usuario?.displayName || 'Anónimo', // 🛠 Usa autor escrito o el nombre de sesión
+        email: usuario?.email || null, // 🛠 Captura el correo del usuario logueado
+        uid: usuario?.uid || null      // 🛠 Captura el UID único de Firebase
+      });
+
+      // 🛠 Limpia los campos después de enviar
       setMensaje('');
       setAutor('');
     }
@@ -35,6 +45,14 @@ function FormularioMensajeModal({ visible, onClose, onSubmit }) {
             onChange={(e) => setMensaje(e.target.value)}
             style={estilos.input}
           />
+
+          {/* 🧠 OPCIONAL: muestra qué cuenta se está usando */}
+          {usuario && (
+            <small style={{ color: '#666' }}>
+              Este mensaje se asociará a: <strong>{usuario.email}</strong>
+            </small>
+          )}
+
           <div style={estilos.botones}>
             <button type="submit" style={estilos.boton}>
               Agregar
