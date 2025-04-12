@@ -9,6 +9,7 @@ function FormularioMensaje({ onSubmit, onCancel }) {
     if (!mensaje.trim()) return;
     onSubmit(mensaje.trim());
     setMensaje('');
+    setAutor('');
   };
 
   return (
