@@ -9,8 +9,9 @@ function FormularioMensajeModal({ visible, onClose, onSubmit }) {
   const handleSubmit = (e) => {
     e.preventDefault();
     if (mensaje.trim() !== '') {
-      onSubmit(mensaje);
+      onSubmit({ mensaje, autor }); // ✅ enviamos ambos valores
       setMensaje('');
+      setAutor('');
     }
   };
 
