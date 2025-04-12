@@ -25,6 +25,7 @@ function FormularioMensajeModal({ visible, onClose, onSubmit }) {
             value={autor}
             onChange={(e) => setAutor(e.target.value)}
             style={estilos.input}
+            autoFocus
           />
           <input
             type="text"
@@ -32,7 +33,6 @@ function FormularioMensajeModal({ visible, onClose, onSubmit }) {
             value={mensaje}
             onChange={(e) => setMensaje(e.target.value)}
             style={estilos.input}
-            autoFocus
           />
           <div style={estilos.botones}>
             <button type="submit" style={estilos.boton}>

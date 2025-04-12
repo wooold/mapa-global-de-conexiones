@@ -12,6 +12,10 @@ const PuntoSchema = new mongoose.Schema({
   mensaje: {
     type: String,
     required: true
+  },
+  autor: {
+    type: String,
+    required: false // 👈 Este es opcional
   }
 });
 
