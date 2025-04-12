@@ -10,7 +10,7 @@ import markerIcon from 'leaflet/dist/images/marker-icon.png';
 import markerShadow from 'leaflet/dist/images/marker-shadow.png';
 
 // 🔗 URL de tu backend en Render (reemplaza por la tuya real)
-const BACKEND_URL = 'https://mapa-global-de-conexiones.onrender.com';
+const BACKEND_URL = process.env.REACT_APP_API_URL || '';
 
 // Corrección del ícono por defecto
 L.Icon.Default.mergeOptions({
