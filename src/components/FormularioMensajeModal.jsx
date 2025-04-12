@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 
 function FormularioMensajeModal({ visible, onClose, onSubmit }) {
   const [mensaje, setMensaje] = useState('');
+  const [autor, setAutor] = useState('');
 
   if (!visible) return null;
 
@@ -18,6 +19,13 @@ function FormularioMensajeModal({ visible, onClose, onSubmit }) {
       <div style={estilos.modal}>
         <h3>Escribe tu mensaje de conexión ✨</h3>
         <form onSubmit={handleSubmit}>
+          <input
+            type="text"
+            placeholder="Tu nombre o seudónimo (opcional)"
+            value={autor}
+            onChange={(e) => setAutor(e.target.value)}
+            style={estilos.input}
+          />
           <input
             type="text"
             placeholder="Mensaje..."

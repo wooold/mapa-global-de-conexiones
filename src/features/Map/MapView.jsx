@@ -47,34 +47,34 @@ function Mapa() {
     setModalAbierto(true);
   };
 
-  const agregarPunto = async (mensaje) => {
+  const handleAgregarMensaje = async ({ mensaje, autor }) => {
     if (!coordsTemp) return;
-
-    const nuevoPunto = {
-      lat: coordsTemp.lat,
-      lng: coordsTemp.lng,
-      mensaje,
-    };
-
+  
     try {
-      const res = await fetch(`${BACKEND_URL}/api/puntos`, {
+      const response = await fetch(`${BACKEND_URL}/api/puntos`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(nuevoPunto),
+        body: JSON.stringify({
+          lat: coordsTemp.lat,
+          lng: coordsTemp.lng,
+          mensaje,
+          autor, // 👈 aquí está la magia
+        }),
       });
-
-      if (res.ok) {
-        const puntoGuardado = await res.json();
-        setPuntos((prev) => [...prev, puntoGuardado]);
-        setModalAbierto(false);
-        setCoordsTemp(null);
+  
+      if (response.ok) {
+        const nuevoPunto = await response.json();
+        setPuntos([...puntos, nuevoPunto]);
       } else {
-        console.error('❌ Error al guardar el punto');
+        console.error('❌ Error al guardar el mensaje');
       }
-    } catch (err) {
-      console.error('❌ Error de conexión al backend:', err);
+    } catch (error) {
+      console.error('💥 Error de conexión al guardar el punto:', error);
+    } finally {
+      setModalAbierto(false);
+      setCoordsTemp(null);
     }
   };
 
@@ -100,7 +100,7 @@ function Mapa() {
       <FormularioMensajeModal
         visible={modalAbierto}
         onClose={() => setModalAbierto(false)}
-        onSubmit={agregarPunto}
+        onSubmit={handleAgregarMensaje}
       />
     </>
   );

@@ -1,15 +1,19 @@
 import React from 'react';
 import { Marker, Popup } from 'react-leaflet';
 
-function MarkerPersonalizado({ lat, lng, mensaje }) {
+function MarkerPersonalizado({ lat, lng, mensaje, autor }) {
   return (
     <Marker position={[lat, lng]}>
         <Popup>
-            <div>
-                <h3 style={{ margin: 0 }}>📍 Conexión</h3>
-                <p style={{ margin: '4px 0' }}>{mensaje}</p>
-                {/* En el futuro podemos agregar más cosas aquí, como fecha o nombre */}
-            </div>
+          <div>
+            <h3 style={{ margin: 0 }}>📍 Conexión</h3>
+            {autor && (
+              <p style={{ margin: '4px 0', color: '#6a1b9a' }}>
+                ✨ {autor} dejó su huella
+              </p>
+            )}
+            <p style={{ margin: '4px 0' }}>{mensaje}</p>
+          </div>
         </Popup>
     </Marker>
   );
