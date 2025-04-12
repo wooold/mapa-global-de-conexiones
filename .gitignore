@@ -16,6 +16,8 @@
 .env.test.local
 .env.production.local
 # Ignorar los archivos .env de producción
+.env
+**/.env
 mapa-vite/.env
 backend-mapa/.env
 
