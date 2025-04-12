@@ -28,6 +28,9 @@ function Mapa() {
   const [modalAbierto, setModalAbierto] = useState(false);
   const [coordsTemp, setCoordsTemp] = useState(null);
 
+  // 🔍 Este log te ayudará a verificar si Vercel recibió correctamente la variable
+  console.log('📡 Backend URL en producción:', BACKEND_URL);
+
   useEffect(() => {
     fetch(`${BACKEND_URL}/api/puntos`)
       .then((res) => res.json())
