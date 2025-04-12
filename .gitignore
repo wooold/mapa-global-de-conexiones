@@ -1,6 +1,7 @@
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
 # dependencies
+**/node_modules
 /node_modules
 /.pnp
 .pnp.js
@@ -8,19 +9,22 @@
 # testing
 /coverage
 
-# production
-/build
-
 # misc
 .DS_Store
 .env.local
 .env.development.local
 .env.test.local
 .env.production.local
-# Ignorar archivos de entorno
-.env
+# Ignorar los archivos .env de producción
+mapa-vite/.env
 backend-mapa/.env
 
+# logs
+*.log
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+
+# dist o build
+**/dist
+**/build
