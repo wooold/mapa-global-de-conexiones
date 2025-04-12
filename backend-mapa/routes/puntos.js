@@ -16,12 +16,12 @@ router.get('/', async (req, res) => {
 
 // Crear un nuevo punto
 router.post('/', async (req, res) => {
-  console.log('📦 Body recibido:', req.body); // 👈 AÑADE ESTO
-  
-  const { lat, lng, mensaje } = req.body;
+  console.log('📦 Body recibido:', req.body); // 👈 Deja este log si quieres ver lo que llega
+
+  const { lat, lng, mensaje, autor } = req.body; // ✅ Incluye autor aquí
 
   try {
-    const nuevoPunto = new Punto({ lat, lng, mensaje });
+    const nuevoPunto = new Punto({ lat, lng, mensaje, autor }); // ✅ Y aquí también
     await nuevoPunto.save();
     res.status(201).json(nuevoPunto);
   } catch (err) {
