@@ -5,6 +5,7 @@ require('dotenv').config();
 
 const app = express();
 const PORT = process.env.PORT || 5000;
+//const HOST = '192.168.18.72';
 
 // Middleware
 app.use(cors());
@@ -27,5 +28,5 @@ app.get('/', (req, res) => {
 });
 
 app.listen(PORT, () => {
-  console.log(`🚀 Servidor corriendo en http://localhost:${PORT}`);
+  console.log(`🚀 Servidor corriendo en el puerto ${PORT}`);
 });

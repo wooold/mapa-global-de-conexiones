@@ -53,7 +53,7 @@ function Mapa() {
     };
   
     try {
-      const res = await fetch('http://localhost:5000/api/puntos', {
+      const res = await fetch('/api/puntos', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
