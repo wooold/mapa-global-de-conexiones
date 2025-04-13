@@ -2,35 +2,26 @@
 
 // 🔐 Importamos funciones necesarias de Firebase Auth
 import {
-  getAuth,
   signInWithPopup,
   GoogleAuthProvider
 } from "firebase/auth";
 
-// 🔧 Importamos la app de Firebase ya inicializada
+// ✅ Usamos authInstance directamente desde config
 import { authInstance } from './config';
 
-// ✅ Obtenemos la instancia de autenticación asociada a la app
-const auth = getAuth(app);
-
-// ☁️ Creamos el proveedor de Google (para iniciar sesión con cuenta Google)
+// ☁️ Creamos el proveedor de Google
 const provider = new GoogleAuthProvider();
 
-// 🚀 Función que abre el popup de Google para iniciar sesión
+// 🚀 Función para iniciar sesión con Google
 export const loginWithGoogle = async () => {
   try {
-    const result = await signInWithPopup(auth, provider);
-
-    // 👀 Mostramos los datos del usuario autenticado en consola
+    const result = await signInWithPopup(authInstance, provider);
     console.log("✅ Usuario autenticado:", result.user);
-
-    return result.user; // Devolvemos el usuario si fue exitoso
+    return result.user;
   } catch (error) {
-    // 🧨 Si el usuario cancela el popup o hay error, lo mostramos en consola
     console.error("❌ Error al autenticar:", error.message);
     return null;
   }
 };
 
-// 🔁 Exportamos auth para usar con useAuthState
-export const authInstance = auth;
+// 👌 Ya NO exportes `authInstance` desde aquí (evitamos conflicto)

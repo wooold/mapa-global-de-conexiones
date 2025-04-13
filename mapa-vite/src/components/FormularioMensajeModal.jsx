@@ -1,25 +1,30 @@
+// 📦 Importamos React y el hook de estado
 import React, { useState } from 'react';
 
-// 🛠 Recibe `usuario` como prop para usar su nombre, email y uid
+// 📝 Componente de formulario para agregar mensajes al mapa
 function FormularioMensajeModal({ visible, onClose, onSubmit, usuario }) {
+  // ✍️ Estados locales del formulario
   const [mensaje, setMensaje] = useState('');
   const [autor, setAutor] = useState('');
 
+  // ❌ Si el modal no está visible, no se renderiza nada
   if (!visible) return null;
 
+  // ✅ Manejador del envío del formulario
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    // 🛠 Validación simple: no envíes si el mensaje está vacío
+    // 🧠 Validación mínima: no enviar si el mensaje está vacío
     if (mensaje.trim() !== '') {
+      // 🔁 Enviamos los datos al componente padre
       onSubmit({
         mensaje,
-        autor: autor || usuario?.displayName || 'Anónimo', // 🛠 Usa autor escrito o el nombre de sesión
-        email: usuario?.email || null, // 🛠 Captura el correo del usuario logueado
-        uid: usuario?.uid || null      // 🛠 Captura el UID único de Firebase
+        autor: autor || usuario?.displayName || 'Anónimo',
+        email: usuario?.email || null,
+        uid: usuario?.uid || null
       });
 
-      // 🛠 Limpia los campos después de enviar
+      // 🧹 Limpiamos el formulario tras el envío
       setMensaje('');
       setAutor('');
     }
@@ -29,7 +34,9 @@ function FormularioMensajeModal({ visible, onClose, onSubmit, usuario }) {
     <div style={estilos.overlay}>
       <div style={estilos.modal}>
         <h3>Escribe tu mensaje de conexión ✨</h3>
+
         <form onSubmit={handleSubmit}>
+          {/* 🖊 Campo para el nombre o seudónimo */}
           <input
             type="text"
             placeholder="Tu nombre o seudónimo (opcional)"
@@ -38,6 +45,8 @@ function FormularioMensajeModal({ visible, onClose, onSubmit, usuario }) {
             style={estilos.input}
             autoFocus
           />
+
+          {/* 💬 Campo para el mensaje */}
           <input
             type="text"
             placeholder="Mensaje..."
@@ -46,20 +55,17 @@ function FormularioMensajeModal({ visible, onClose, onSubmit, usuario }) {
             style={estilos.input}
           />
 
-          {/* 🧠 OPCIONAL: muestra qué cuenta se está usando */}
+          {/* 👀 Información del usuario si está logueado */}
           {usuario && (
-            <small style={{ color: '#666' }}>
+            <small style={{ color: '#666', display: 'block', marginBottom: '0.5rem' }}>
               Este mensaje se asociará a: <strong>{usuario.email}</strong>
             </small>
           )}
 
+          {/* ⚙️ Botones de acción */}
           <div style={estilos.botones}>
-            <button type="submit" style={estilos.boton}>
-              Agregar
-            </button>
-            <button type="button" onClick={onClose} style={estilos.cancelar}>
-              Cancelar
-            </button>
+            <button type="submit" style={estilos.boton}>Agregar</button>
+            <button type="button" onClick={onClose} style={estilos.cancelar}>Cancelar</button>
           </div>
         </form>
       </div>
@@ -67,6 +73,7 @@ function FormularioMensajeModal({ visible, onClose, onSubmit, usuario }) {
   );
 }
 
+// 🎨 Estilos inline para el modal
 const estilos = {
   overlay: {
     position: 'fixed',

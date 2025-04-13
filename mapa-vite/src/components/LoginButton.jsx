@@ -1,14 +1,18 @@
 // 📂 src/components/LoginButton.jsx
 
 import React, { useState, useEffect } from "react";
-import { loginWithGoogle, authInstance } from "../firebase/auth";
-import { onAuthStateChanged } from "firebase/auth";
+
+// 🔐 Importamos la función de login y la instancia de auth
+import { loginWithGoogle } from "../firebase/auth";
+import { authInstance } from "../firebase/config"; // 👈 cambio aquí
+
+import { onAuthStateChanged } from "firebase/auth"; // 📡 Listener de sesión
 
 const LoginButton = () => {
-  const [user, setUser] = useState(null);          // 👤 Estado local para el usuario
-  const [loading, setLoading] = useState(false);   // ⏳ Control para evitar múltiples clics
+  const [user, setUser] = useState(null);          // 👤 Estado del usuario
+  const [loading, setLoading] = useState(false);   // ⏳ Estado para evitar múltiples clics
 
-  // 🔍 Escucha cambios en la sesión de Firebase al montar el componente
+  // 🔍 Al montar, escuchamos si hay usuario logueado
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(authInstance, (usuario) => {
       if (usuario) {
@@ -20,14 +24,15 @@ const LoginButton = () => {
       }
     });
 
-    return () => unsubscribe(); // ✅ Limpia el listener al desmontar el componente
+    // ✅ Limpiar listener al desmontar
+    return () => unsubscribe();
   }, []);
 
-  // 🔐 Maneja el inicio de sesión al hacer clic en el botón
+  // 🧠 Maneja el clic de inicio de sesión con Google
   const handleLogin = async () => {
-    if (loading) return; // Evita doble clic
+    if (loading) return; // Protege contra múltiples clics
 
-    setLoading(true); // Desactiva el botón temporalmente
+    setLoading(true);
     console.log("🚀 Intentando iniciar sesión...");
 
     const userData = await loginWithGoogle();
@@ -39,16 +44,15 @@ const LoginButton = () => {
       console.warn("⚠️ No se completó el inicio de sesión (cancelado o error)");
     }
 
-    setLoading(false); // Reactiva el botón
+    setLoading(false);
   };
 
+  // 🎨 Renderizado condicional según si hay sesión activa
   return (
     <div style={{ textAlign: "center" }}>
       {user ? (
-        // 🟢 Si hay usuario, muestra saludo
         <p>Hola, {user.displayName || user.email} 👋</p>
       ) : (
-        // 🔘 Si no hay sesión, muestra botón (deshabilitado si está cargando)
         <button onClick={handleLogin} disabled={loading}>
           {loading ? "Conectando..." : "Iniciar sesión con Google"}
         </button>

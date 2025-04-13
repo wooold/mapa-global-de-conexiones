@@ -1,36 +1,31 @@
 // 🎯 Importamos React para poder usar JSX
 import React from "react";
 
-// 🔐 Importamos la función de cerrar sesión de Firebase
+// 🔐 Importamos la función para cerrar sesión de Firebase Auth
 import { signOut } from "firebase/auth";
 
-// 🔑 Importamos nuestra instancia de autenticación (ya configurada)
-import { authInstance } from "../firebase/auth";
+// ✅ Importamos la instancia de autenticación desde el archivo correcto
+import { authInstance } from "../firebase/config"; // antes estaba mal apuntando a auth.js
 
-// 🧠 Este componente recibe el `usuario` autenticado como prop
+// 🧠 Componente que muestra el nombre del usuario logueado y el botón de logout
 const UserHeader = ({ usuario }) => {
-
-  // 🚪 Función para cerrar sesión cuando se hace clic en el botón
+  // 🚪 Función que se ejecuta al hacer clic en "Cerrar sesión"
   const handleLogout = () => {
-    signOut(authInstance) // 🔄 Cerramos sesión en Firebase
+    signOut(authInstance)
       .then(() => console.log("👋 Sesión cerrada"))
-      .catch((error) => console.error("Error al cerrar sesión:", error));
+      .catch((error) => console.error("❌ Error al cerrar sesión:", error));
   };
 
-  // ❌ Si no hay usuario, no renderizamos nada (nada que mostrar)
+  // ❌ Si no hay usuario logueado, no se muestra nada
   if (!usuario) return null;
 
-  // ✅ Si hay usuario logueado, mostramos saludo + botón
+  // ✅ Si hay usuario, mostramos un saludo y el botón para cerrar sesión
   return (
     <div style={estilos.header}>
       <p style={estilos.texto}>
         Bienvenido,{" "}
-        <strong>
-          {/* 👤 Mostramos el nombre o el correo si no hay nombre */}
-          {usuario.displayName || usuario.email}
-        </strong>
+        <strong>{usuario.displayName || usuario.email}</strong>
       </p>
-      {/* 🔘 Botón para cerrar sesión */}
       <button onClick={handleLogout} style={estilos.boton}>
         Cerrar sesión
       </button>
@@ -38,7 +33,7 @@ const UserHeader = ({ usuario }) => {
   );
 };
 
-// 🎨 Estilos en línea definidos como objeto JS
+// 🎨 Estilos en línea
 const estilos = {
   header: {
     display: "flex",
@@ -53,7 +48,7 @@ const estilos = {
     fontSize: "1rem",
   },
   boton: {
-    backgroundColor: "#dc3545", // 🔴 Rojo (color común de logout)
+    backgroundColor: "#dc3545", // 🔴 Rojo: botón de logout
     color: "white",
     border: "none",
     padding: "0.5rem 1rem",
@@ -62,5 +57,5 @@ const estilos = {
   },
 };
 
-// ✅ Exportamos el componente para usarlo en App.jsx
+// ✅ Exportamos el componente para que se pueda usar en App.jsx
 export default UserHeader;

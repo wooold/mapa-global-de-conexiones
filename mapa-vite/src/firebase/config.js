@@ -1,4 +1,4 @@
-// src/firebase/config.js
+// 📂 src/firebase/config.js
 import { initializeApp } from 'firebase/app';
 import { getAuth } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
@@ -18,4 +18,4 @@ const app = initializeApp(firebaseConfig);
 const authInstance = getAuth(app);
 const db = getFirestore(app);
 
-export { app, authInstance, db }; // 👈 aquí estás exportando `app` también
+export { app, authInstance, db }; // 👌 Perfecto

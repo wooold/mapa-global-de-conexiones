@@ -6,7 +6,7 @@ import { MapContainer, TileLayer, useMapEvents } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 
-// 🧠 Conexiones a Firestore
+// 🔥 Conexiones a Firestore
 import { guardarPuntoEnFirestore, obtenerPuntosDesdeFirestore } from '../../firebase/firestore';
 
 // 🧱 Componentes propios
@@ -23,19 +23,19 @@ L.Icon.Default.mergeOptions({
   shadowUrl: markerShadow,
 });
 
-// 🎯 Componente para capturar clics en el mapa
+// 🎯 Componente para detectar clics en el mapa
 function MapClickHandler({ onClick }) {
   useMapEvents({ click: onClick });
   return null;
 }
 
-// 📌 Componente principal del mapa
-function Mapa({ usuario }) {
-  const [puntos, setPuntos] = useState([]); // 📍 Lista de puntos visibles en el mapa
-  const [modalAbierto, setModalAbierto] = useState(false); // 📩 Estado para mostrar/ocultar el modal
-  const [coordsTemp, setCoordsTemp] = useState(null); // 📌 Coordenadas temporales al hacer clic
+// 🧭 Componente principal del mapa
+function MapaView({ usuario }) {
+  const [puntos, setPuntos] = useState([]);
+  const [modalAbierto, setModalAbierto] = useState(false);
+  const [coordsTemp, setCoordsTemp] = useState(null);
 
-  // 🚀 Carga inicial de puntos desde Firestore
+  // 🔄 Cargar puntos desde Firestore al montar el componente
   useEffect(() => {
     const obtenerPuntos = async () => {
       try {
@@ -45,11 +45,10 @@ function Mapa({ usuario }) {
         console.error('❌ Error al cargar puntos desde Firestore:', err);
       }
     };
-
     obtenerPuntos();
   }, []);
 
-  // 👆 Maneja clics en el mapa y abre el modal
+  // 📌 Cuando el usuario hace clic en el mapa
   const manejarClickMapa = (e) => {
     setCoordsTemp({
       lat: e.latlng.lat,
@@ -58,7 +57,7 @@ function Mapa({ usuario }) {
     setModalAbierto(true);
   };
 
-  // 📝 Maneja el envío del formulario con mensaje y datos del usuario
+  // ✍️ Enviar nuevo punto al backend
   const handleAgregarMensaje = async ({ mensaje, autor, email, uid }) => {
     if (!coordsTemp || !mensaje) return;
 
@@ -72,10 +71,7 @@ function Mapa({ usuario }) {
         uid,
       };
 
-      // 🔥 Guardar el nuevo punto en Firestore
       const id = await guardarPuntoEnFirestore(nuevoPunto);
-
-      // 🧩 Actualizar el estado local con el nuevo punto
       setPuntos([...puntos, { ...nuevoPunto, id }]);
     } catch (error) {
       console.error('💥 Error al guardar el punto en Firestore:', error);
@@ -87,26 +83,17 @@ function Mapa({ usuario }) {
 
   return (
     <>
-      <MapContainer
-        center={[51.505, -0.09]} // 🌍 Coordenadas iniciales
-        zoom={3}
-        style={{ height: '100vh' }}
-      >
+      <MapContainer center={[51.505, -0.09]} zoom={3} style={{ height: '100vh' }}>
         <TileLayer
           attribution="&copy; OpenStreetMap contributors"
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
-
-        {/* 👆 Escucha clics en el mapa */}
         <MapClickHandler onClick={manejarClickMapa} />
-
-        {/* 📍 Renderiza todos los puntos guardados */}
         {puntos.map((punto, index) => (
           <MarkerPersonalizado key={index} {...punto} />
         ))}
       </MapContainer>
 
-      {/* 🧾 Modal para escribir el mensaje al hacer clic */}
       <FormularioMensajeModal
         visible={modalAbierto}
         onClose={() => setModalAbierto(false)}
@@ -117,4 +104,4 @@ function Mapa({ usuario }) {
   );
 }
 
-export default Mapa;
+export default MapaView;
