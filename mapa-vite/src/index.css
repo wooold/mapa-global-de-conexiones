@@ -2,3 +2,7 @@ body {
     margin: 0;
     font-family: sans-serif;
   }
+.leaflet-interactive.linea-neon {
+  filter: drop-shadow(0 0 2px #00ffff) drop-shadow(0 0 5px #00ffff);
+  stroke-linecap: round;
+}

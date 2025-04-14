@@ -1,65 +1,103 @@
-// 📦 Importamos React y hooks necesarios
+// 📦 React y hooks
 import React, { useState, useEffect } from 'react';
 
-// 🗺️ Importamos Leaflet y componentes de react-leaflet
-import { MapContainer, TileLayer, useMapEvents } from 'react-leaflet';
+// 🗺️ Componentes Leaflet
+import {
+  MapContainer,
+  TileLayer,
+  useMapEvents,
+  useMap,
+  Marker,
+  Polyline,
+  Popup,
+} from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 
-// 🔥 Conexiones a Firestore
-import { guardarPuntoEnFirestore, obtenerPuntosDesdeFirestore } from '../../firebase/firestore';
-
-// 🧱 Componentes propios
-import MarkerPersonalizado from './MarkerPersonalizado';
-import FormularioMensajeModal from '../../components/FormularioMensajeModal';
-
-// 📍 Íconos para los marcadores
+// 🧩 Íconos compatibles con Vite
 import markerIcon from 'leaflet/dist/images/marker-icon.png';
+import markerRetina from 'leaflet/dist/images/marker-icon-2x.png';
 import markerShadow from 'leaflet/dist/images/marker-shadow.png';
 
-// 🛠 Configura íconos por defecto en Leaflet
+delete L.Icon.Default.prototype._getIconUrl;
 L.Icon.Default.mergeOptions({
+  iconRetinaUrl: markerRetina,
   iconUrl: markerIcon,
   shadowUrl: markerShadow,
 });
 
-// 🎯 Componente para detectar clics en el mapa
+// 🔥 Firestore
+import {
+  guardarPuntoEnFirestore,
+  obtenerPuntosDesdeFirestore,
+  obtenerConexionesDesdeFirestore,
+} from '../../firebase/firestore';
+
+// 🧱 Componentes propios
+import MarkerPersonalizado from './MarkerPersonalizado';
+import FormularioConexionModal from '../../components/FormularioConexionModal'; // ⬅️ asegúrate que el nombre coincida
+import handleConexionAuto from '../../utils/handleConexionAuto';
+
 function MapClickHandler({ onClick }) {
   useMapEvents({ click: onClick });
   return null;
 }
 
-// 🧭 Componente principal del mapa
+// 📍 Centrado inicial en ubicación del usuario
+const Geolocalizacion = () => {
+  const map = useMap();
+  const [centrado, setCentrado] = useState(false);
+
+  useEffect(() => {
+    if (!navigator.geolocation || centrado) return;
+    navigator.geolocation.getCurrentPosition(
+      ({ coords }) => {
+        map.setView([coords.latitude, coords.longitude], 13);
+        setCentrado(true);
+      },
+      (err) => console.warn('Geoloc error:', err),
+      { enableHighAccuracy: true, timeout: 5000 }
+    );
+  }, [centrado, map]);
+
+  return null;
+};
+
 function MapaView({ usuario }) {
   const [puntos, setPuntos] = useState([]);
+  const [conexiones, setConexiones] = useState([]);
   const [modalAbierto, setModalAbierto] = useState(false);
   const [coordsTemp, setCoordsTemp] = useState(null);
+  const [guardando, setGuardando] = useState(false);
 
-  // 🔄 Cargar puntos desde Firestore al montar el componente
   useEffect(() => {
-    const obtenerPuntos = async () => {
+    const obtenerDatos = async () => {
       try {
         const data = await obtenerPuntosDesdeFirestore();
-        setPuntos(data);
-      } catch (err) {
-        console.error('❌ Error al cargar puntos desde Firestore:', err);
+        if (usuario?.uid) {
+          const puntosUsuario = data.filter((p) => p.uid === usuario.uid);
+          setPuntos(puntosUsuario);
+
+          const conexionesUsuario = await obtenerConexionesDesdeFirestore(usuario.uid);
+          setConexiones(conexionesUsuario);
+        }
+      } catch (error) {
+        console.error('Error cargando datos:', error);
       }
     };
-    obtenerPuntos();
-  }, []);
 
-  // 📌 Cuando el usuario hace clic en el mapa
+    obtenerDatos();
+  }, [usuario]);
+
   const manejarClickMapa = (e) => {
-    setCoordsTemp({
-      lat: e.latlng.lat,
-      lng: e.latlng.lng,
-    });
+    setCoordsTemp({ lat: e.latlng.lat, lng: e.latlng.lng });
     setModalAbierto(true);
   };
 
-  // ✍️ Enviar nuevo punto al backend
-  const handleAgregarMensaje = async ({ mensaje, autor, email, uid }) => {
-    if (!coordsTemp || !mensaje) return;
+  const handleAgregarMensaje = async ({ mensaje, autor, email, uid, publico, anio, color }) => {
+    const anioNumerico = parseInt(anio);
+    if (!coordsTemp || !mensaje || isNaN(anioNumerico)) return;
+    setGuardando(true);
 
     try {
       const nuevoPunto = {
@@ -69,36 +107,100 @@ function MapaView({ usuario }) {
         autor,
         email,
         uid,
+        publico,
+        anio: anioNumerico,
+        color,
       };
 
-      const id = await guardarPuntoEnFirestore(nuevoPunto);
-      setPuntos([...puntos, { ...nuevoPunto, id }]);
+      const puntoConId = await handleConexionAuto({
+        nuevoPunto,
+        uid,
+        obtenerTodosPuntos: obtenerPuntosDesdeFirestore,
+        guardarPunto: guardarPuntoEnFirestore,
+      });
+
+      const dataActualizada = await obtenerPuntosDesdeFirestore();
+      const puntosUsuario = dataActualizada.filter((p) => p.uid === usuario.uid);
+      setPuntos(puntosUsuario);
+
+      const conexionesActualizadas = await obtenerConexionesDesdeFirestore(uid);
+      setConexiones(conexionesActualizadas);
+
     } catch (error) {
-      console.error('💥 Error al guardar el punto en Firestore:', error);
+      console.error('Error guardando punto:', error);
     } finally {
+      setGuardando(false);
       setModalAbierto(false);
       setCoordsTemp(null);
     }
   };
 
+  const nombreUsuario = usuario?.displayName || usuario?.email || 'Usuario';
+
   return (
     <>
-      <MapContainer center={[51.505, -0.09]} zoom={3} style={{ height: '100vh' }}>
+      <div style={{
+        padding: '1rem',
+        textAlign: 'center',
+        background: '#f9f9f9',
+        borderBottom: '1px solid #ddd'
+      }}>
+        Bienvenido, <strong>{nombreUsuario}</strong> | Has dejado <strong>{puntos.length}</strong> huella{puntos.length !== 1 && 's'}
+      </div>
+
+      <MapContainer center={[-12.0464, -77.0428]} zoom={3} style={{ height: '100vh' }}>
+        <Geolocalizacion />
         <TileLayer
           attribution="&copy; OpenStreetMap contributors"
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
         <MapClickHandler onClick={manejarClickMapa} />
-        {puntos.map((punto, index) => (
-          <MarkerPersonalizado key={index} {...punto} />
+
+        {/* 🧭 Marcadores del usuario */}
+        {puntos.map((punto, i) => (
+          <MarkerPersonalizado key={i} {...punto} />
         ))}
+
+        {/* 🔗 Conexiones emocionales */}
+        {conexiones.map((conexion, i) => {
+          const puntoA = puntos.find((p) => p.id === conexion.idPuntoA);
+          const puntoB = puntos.find((p) => p.id === conexion.idPuntoB);
+          if (!puntoA || !puntoB) return null;
+
+          return (
+            <React.Fragment key={i}>
+              <Polyline
+                positions={[[puntoA.lat, puntoA.lng], [puntoB.lat, puntoB.lng]]}
+                pathOptions={{
+                  color: '#000',
+                  weight: 8,
+                  opacity: 0.4,
+                }}
+              />
+              <Polyline
+                positions={[[puntoA.lat, puntoA.lng], [puntoB.lat, puntoB.lng]]}
+                pathOptions={{
+                  color: conexion.color || '#00FFFF',
+                  weight: 5,
+                  opacity: 0.9,
+                  className: 'linea-neon',
+                }}
+              >
+                <Popup>
+                  <strong>{conexion.anio}</strong>: {conexion.mensaje}
+                </Popup>
+              </Polyline>
+            </React.Fragment>
+          );
+        })}
       </MapContainer>
 
-      <FormularioMensajeModal
+      <FormularioConexionModal
         visible={modalAbierto}
         onClose={() => setModalAbierto(false)}
         onSubmit={handleAgregarMensaje}
         usuario={usuario}
+        guardando={guardando}
       />
     </>
   );

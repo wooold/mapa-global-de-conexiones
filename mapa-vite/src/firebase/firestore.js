@@ -1,9 +1,15 @@
-// src/firebase/firestore.js
+// 🔥 Firebase Firestore
 import { db } from './config';
-import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
-import { getDocs } from 'firebase/firestore'; // asegúrate de tenerlo
+import {
+  collection,
+  addDoc,
+  getDocs,
+  serverTimestamp,
+  query,
+  where,
+} from 'firebase/firestore';
 
-// 📍 Guarda un punto en la colección 'puntos'
+// 📍 Guardar un nuevo punto
 export const guardarPuntoEnFirestore = async (punto) => {
   try {
     const docRef = await addDoc(collection(db, 'puntos'), {
@@ -18,16 +24,48 @@ export const guardarPuntoEnFirestore = async (punto) => {
   }
 };
 
-// 📤 Carga todos los puntos guardados desde Firestore
+// 📤 Obtener todos los puntos
 export const obtenerPuntosDesdeFirestore = async () => {
-    try {
-      const snapshot = await getDocs(collection(db, 'puntos'));
-      return snapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data(),
-      }));
-    } catch (error) {
-      console.error('❌ Error al obtener los puntos:', error);
-      return [];
-    }
-  };
+  try {
+    const snapshot = await getDocs(collection(db, 'puntos'));
+    return snapshot.docs.map((doc) => ({
+      id: doc.id,
+      ...doc.data(),
+    }));
+  } catch (error) {
+    console.error('❌ Error al obtener los puntos:', error);
+    return [];
+  }
+};
+
+// 🔗 Guardar una conexión entre puntos
+export const guardarConexionEnFirestore = async (conexion) => {
+  try {
+    const docRef = await addDoc(collection(db, 'conexiones'), {
+      ...conexion,
+      creadoEn: serverTimestamp(),
+    });
+    console.log('🔗 Conexión guardada con ID:', docRef.id);
+    return docRef.id;
+  } catch (error) {
+    console.error('❌ Error al guardar la conexión:', error);
+    throw error;
+  }
+};
+
+// 🔍 Obtener conexiones de un usuario
+export const obtenerConexionesDesdeFirestore = async (uid) => {
+  try {
+    const ref = collection(db, 'conexiones');
+    const q = query(ref, where('uid', '==', uid));
+    const snapshot = await getDocs(q);
+
+    return snapshot.docs.map((doc) => ({
+      id: doc.id,
+      ...doc.data(),
+    }));
+  } catch (error) {
+    console.error('❌ Error al obtener conexiones:', error);
+    return [];
+  }
+};

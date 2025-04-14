@@ -1,44 +1,50 @@
-// 📍 Importamos Leaflet y su CSS
-import L from 'leaflet';
-import 'leaflet/dist/leaflet.css';
+// 🔍 Contador de huellas personales (lo ideal es calcularlo aquí con datos de Firestore)
+import { useState, useEffect } from 'react';
+import { obtenerPuntosDesdeFirestore } from './firebase/firestore';
 
-// 🛠 Corrección de íconos para Vite (usando `import` en lugar de `require`)
-import markerIcon2x from 'leaflet/dist/images/marker-icon-2x.png';
-import markerIcon from 'leaflet/dist/images/marker-icon.png';
-import markerShadow from 'leaflet/dist/images/marker-shadow.png';
-
-// 🔧 Aplicamos los íconos a Leaflet
-L.Icon.Default.mergeOptions({
-  iconRetinaUrl: '/icons/marker-icon-2x.png',
-  iconUrl: '/icons/marker-icon.png',
-  shadowUrl: '/icons/marker-shadow.png',
-});
-
-// 🗺️ Vista principal del mapa
-import MapaView from './features/Map/MapView';
-
-// 🔐 Autenticación de Firebase
+// 🔐 Firebase + auth
 import { authInstance } from './firebase/config';
 import { useAuthState } from 'react-firebase-hooks/auth';
 
-// 🧑 Componentes de sesión
+// 🧩 Componentes
 import UserHeader from './components/UserHeader';
 import LoginButton from './components/LoginButton';
+import MapaView from './features/Map/MapView';
 
 function App() {
   const [usuario] = useAuthState(authInstance);
 
+  const [totalHuellas, setTotalHuellas] = useState(0);
+  const [huellasPublicas, setHuellasPublicas] = useState(0);
+
+  useEffect(() => {
+    const obtenerMisHuellas = async () => {
+      if (!usuario?.uid) return;
+
+      const data = await obtenerPuntosDesdeFirestore();
+      const misHuellas = data.filter((punto) => punto.uid === usuario.uid);
+      const publicas = misHuellas.filter((punto) => punto.publico === true);
+
+      setTotalHuellas(misHuellas.length);
+      setHuellasPublicas(publicas.length);
+    };
+
+    obtenerMisHuellas();
+  }, [usuario]);
+
   return (
     <div>
-      {/* 👤 Mostrar header si hay sesión, sino botón de login */}
       {usuario ? (
-        <UserHeader usuario={usuario} />
+        <UserHeader
+          usuario={usuario}
+          totalHuellas={totalHuellas}
+          huellasPublicas={huellasPublicas}
+        />
       ) : (
         <LoginButton />
       )}
 
-      {/* 🗺️ Mapa visible para todos */}
-      <MapaView usuario={usuario} />
+      {usuario && <MapaView usuario={usuario} />}
     </div>
   );
 }

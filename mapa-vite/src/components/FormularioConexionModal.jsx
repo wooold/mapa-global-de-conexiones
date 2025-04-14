@@ -1,32 +1,43 @@
+// 📦 Importamos React y el hook de estado
 import React, { useState } from 'react';
 
-function FormularioMensajeModal({ visible, onClose, onSubmit, usuario, guardando }) {
+// 📝 Componente de formulario para agregar mensajes y conexiones
+function FormularioConexionModal({ visible, onClose, onSubmit, usuario, guardando }) {
   const [mensaje, setMensaje] = useState('');
   const [autor, setAutor] = useState('');
-  const [anio, setAnio] = useState(''); // ✅ Nuevo estado para el año
   const [esPublico, setEsPublico] = useState(false);
+  const [anio, setAnio] = useState('');
+  const [color, setColor] = useState('#00FFFF'); // 🎨 Color por defecto
 
   if (!visible) return null;
 
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    if (mensaje.trim() !== '' && anio.trim() !== '' && !guardando) {
-      onSubmit({
-        mensaje,
-        autor: autor || usuario?.displayName || 'Anónimo',
-        email: usuario?.email || null,
-        uid: usuario?.uid || null,
-        anio: parseInt(anio), // ✅ Enviamos como número
-        publico: esPublico,
-      });
+    const anioNumerico = parseInt(anio);
+    if (!mensaje.trim() || isNaN(anioNumerico) || guardando) return;
 
-      setMensaje('');
-      setAutor('');
-      setAnio('');
-      setEsPublico(false);
-    }
+    onSubmit({
+      mensaje,
+      autor: autor || usuario?.displayName || 'Anónimo',
+      email: usuario?.email || null,
+      uid: usuario?.uid || null,
+      publico: esPublico,
+      anio: anioNumerico,
+      color,
+    });
+
+    setMensaje('');
+    setAutor('');
+    setEsPublico(false);
+    setAnio('');
+    setColor('#00FFFF');
   };
+
+  const coloresDisponibles = [
+    '#00FFFF', '#FF00FF', '#FF8C00', '#7CFC00', '#FFD700',
+    '#00CED1', '#FF1493', '#8A2BE2', '#FF4500', '#00FF7F'
+  ];
 
   return (
     <div style={estilos.overlay}>
@@ -47,20 +58,22 @@ function FormularioMensajeModal({ visible, onClose, onSubmit, usuario, guardando
           )}
 
           <input
-            type="text"
-            placeholder="Mensaje..."
-            value={mensaje}
-            onChange={(e) => setMensaje(e.target.value)}
-            style={estilos.input}
-            disabled={guardando}
-          />
-
-          {/* 📅 Año de la huella */}
-          <input
             type="number"
             placeholder="Año del evento (ej. 1994)"
             value={anio}
             onChange={(e) => setAnio(e.target.value)}
+            style={estilos.input}
+            min="1900"
+            max={new Date().getFullYear() + 10}
+            required
+            disabled={guardando}
+          />
+
+          <input
+            type="text"
+            placeholder="Mensaje..."
+            value={mensaje}
+            onChange={(e) => setMensaje(e.target.value)}
             style={estilos.input}
             disabled={guardando}
           />
@@ -81,6 +94,22 @@ function FormularioMensajeModal({ visible, onClose, onSubmit, usuario, guardando
             />
             Hacer esta huella visible en el mapa global 🌐
           </label>
+
+          <label style={estilos.label}>Color de la conexión:</label>
+          <div style={estilos.colores}>
+            {coloresDisponibles.map((c) => (
+              <div
+                key={c}
+                title={c}
+                onClick={() => setColor(c)}
+                style={{
+                  ...estilos.colorBox,
+                  backgroundColor: c,
+                  border: c === color ? '3px solid #000' : '1px solid #ccc',
+                }}
+              />
+            ))}
+          </div>
 
           {guardando && (
             <p style={{ textAlign: 'center', fontStyle: 'italic', color: '#007bff' }}>
@@ -164,6 +193,23 @@ const estilos = {
     borderRadius: '6px',
     cursor: 'pointer',
   },
+  label: {
+    margin: '0.5rem 0 0.2rem',
+    display: 'block',
+    fontWeight: 'bold',
+  },
+  colores: {
+    display: 'flex',
+    flexWrap: 'wrap',
+    gap: '0.5rem',
+    marginBottom: '1rem',
+  },
+  colorBox: {
+    width: '30px',
+    height: '30px',
+    borderRadius: '50%',
+    cursor: 'pointer',
+  },
 };
 
-export default FormularioMensajeModal;
+export default FormularioConexionModal;

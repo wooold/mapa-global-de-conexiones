@@ -1,30 +1,33 @@
 // 🎯 Importamos React para poder usar JSX
 import React from "react";
 
-// 🔐 Importamos la función para cerrar sesión de Firebase Auth
+// 🔐 Función de logout de Firebase
 import { signOut } from "firebase/auth";
+import { authInstance } from "../firebase/config";
 
-// ✅ Importamos la instancia de autenticación desde el archivo correcto
-import { authInstance } from "../firebase/config"; // antes estaba mal apuntando a auth.js
-
-// 🧠 Componente que muestra el nombre del usuario logueado y el botón de logout
-const UserHeader = ({ usuario }) => {
-  // 🚪 Función que se ejecuta al hacer clic en "Cerrar sesión"
+// 🧠 Recibimos también los contadores
+const UserHeader = ({ usuario, totalHuellas, huellasPublicas }) => {
   const handleLogout = () => {
     signOut(authInstance)
       .then(() => console.log("👋 Sesión cerrada"))
       .catch((error) => console.error("❌ Error al cerrar sesión:", error));
   };
 
-  // ❌ Si no hay usuario logueado, no se muestra nada
   if (!usuario) return null;
 
-  // ✅ Si hay usuario, mostramos un saludo y el botón para cerrar sesión
   return (
     <div style={estilos.header}>
       <p style={estilos.texto}>
         Bienvenido,{" "}
-        <strong>{usuario.displayName || usuario.email}</strong>
+        <strong>{usuario.displayName || usuario.email}</strong> | Has dejado{" "}
+        <strong>{totalHuellas}</strong> huella{totalHuellas !== 1 && "s"}
+        {huellasPublicas > 0 && (
+          <>
+            {" "}
+            (<strong>{huellasPublicas}</strong> pública
+            {huellasPublicas !== 1 && "s"})
+          </>
+        )}
       </p>
       <button onClick={handleLogout} style={estilos.boton}>
         Cerrar sesión
@@ -33,7 +36,6 @@ const UserHeader = ({ usuario }) => {
   );
 };
 
-// 🎨 Estilos en línea
 const estilos = {
   header: {
     display: "flex",
@@ -48,7 +50,7 @@ const estilos = {
     fontSize: "1rem",
   },
   boton: {
-    backgroundColor: "#dc3545", // 🔴 Rojo: botón de logout
+    backgroundColor: "#dc3545",
     color: "white",
     border: "none",
     padding: "0.5rem 1rem",
@@ -57,5 +59,4 @@ const estilos = {
   },
 };
 
-// ✅ Exportamos el componente para que se pueda usar en App.jsx
 export default UserHeader;
