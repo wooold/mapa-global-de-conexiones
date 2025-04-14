@@ -139,15 +139,6 @@ function MapaView({ usuario }) {
 
   return (
     <>
-      <div style={{
-        padding: '1rem',
-        textAlign: 'center',
-        background: '#f9f9f9',
-        borderBottom: '1px solid #ddd'
-      }}>
-        Bienvenido, <strong>{nombreUsuario}</strong> | Has dejado <strong>{puntos.length}</strong> huella{puntos.length !== 1 && 's'}
-      </div>
-
       <MapContainer center={[-12.0464, -77.0428]} zoom={3} style={{ height: '100vh' }}>
         <Geolocalizacion />
         <TileLayer
