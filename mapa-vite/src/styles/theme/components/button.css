@@ -1,0 +1,17 @@
+.btn-hig {
+    background-color: var(--color-surface);
+    color: var(--color-text);
+    font-family: var(--font-family);
+    padding: var(--spacing-sm) var(--spacing-md);
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--color-border);
+    box-shadow: var(--shadow-soft);
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+  
+  .btn-hig:hover {
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
+    background-color: #f0f0f0;
+  }
+  
